@@ -1,0 +1,47 @@
+<script src="https://unpkg.com/vue"></script>
+
+<div id="app">
+  <div>
+    <div v-if="game.connected">
+      {{game.state.guid}}
+      {{game.state.status}}
+    </div>
+  </div>
+  <button @click="connectToGame">
+    Connect to the game
+  </button>
+  <div v-if="game.connected && game.status == START_GAME">
+    <button @click="attack">Attack</button>
+    <button @click="heal">Heal</button>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script>
+  new Vue({
+    el: '#app',
+    data: {
+      connection: null,
+      game: {
+        state: null,
+        connected: false,
+      }
+    },
+    methods: {
+      onMessage(event) {
+        this.game.state = JSON.parse(event.data);
+        this.game.connected = true;
+      },
+      connectToGame() {
+        this.connection = new WebSocket('ws://localhost:8888/game');
+        this.connection.onmessage = this.onMessage;
+      },
+      attack() {
+        this.connection.send('ATTACK');
+      },
+      heal() {
+        this.connection.send('HEAL');
+      }
+    }
+  })
+</script>
